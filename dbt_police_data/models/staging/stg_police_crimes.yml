@@ -1,0 +1,59 @@
+version: 2
+
+models:
+  - name: stg_police_crimes
+    description: >
+      Staging model for police crimes. Retains the nested API structure for
+      location and latest outcome status, with only light renaming and typing applied.
+    columns:
+      - name: crime_category
+        data_type: string
+        description: >
+          Category of the crime, such as anti-social-behaviour or bicycle-theft.
+
+      - name: persistent_id
+        data_type: string
+        description: >
+          Stable 64-character identifier for the crime record. This may be blank
+          for some records.
+
+      - name: location_subtype
+        data_type: string
+        description: >
+          More specific subtype for BTP locations where applicable.
+
+      - name: crime_id
+        data_type: bigint
+        description: >
+          API-specific identifier for the crime. This is not a police identifier.
+
+      - name: location
+        data_type: struct<
+          latitude:string,
+          street:struct<id:bigint,name:string>,
+          longitude:string
+        
+        description: >
+          Nested approximate location object containing latitude, longitude,
+          and approximate street information.
+
+      - name: context
+        data_type: string
+        description: >
+          Additional context about the crime where supplied by the API.
+
+      - name: crime_month
+        data_type: string
+        description: >
+          Month the crime was recorded, in YYYY-MM format.
+
+      - name: location_type
+        data_type: string
+        description: >
+          Type of police location, typically Force or BTP.
+
+      - name: outcome_status
+        data_type: struct<category:string,date:string>
+        description: >
+          Nested latest recorded outcome for the crime, including the outcome
+          category and the outcome month. This field may be null.

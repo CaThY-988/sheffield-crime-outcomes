@@ -1,0 +1,42 @@
+version: 2
+
+models:
+  - name: stg_police_outcomes
+    description: >
+      Staging model for police crime outcomes. Retains the nested API structure
+      for outcome category and crime details, with only light renaming applied.
+    columns:
+      - name: category
+        data_type: struct<code:string,name:string>
+        description: >
+          Nested outcome category object containing the internal outcome code and
+          the human-readable outcome name.
+
+      - name: outcome_date
+        data_type: string
+        description: >
+          Month of the outcome in YYYY-MM format.
+
+      - name: person_id
+        data_type: string
+        description: >
+          Identifier for the suspect or offender where available. Often null.
+
+      - name: crime
+        data_type: struct<
+          category:string,
+          persistent_id:string,
+          location_subtype:string,
+          location_type:string,
+          location:struct<
+            latitude:string,
+            street:struct<id:bigint,name:string>,
+            longitude:string
+          >,
+          context:string,
+          month:string,
+          id:bigint
+        
+        description: >
+          Nested crime object associated with the outcome, including category,
+          identifiers, approximate location, and crime month.

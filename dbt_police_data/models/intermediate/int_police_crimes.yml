@@ -1,0 +1,75 @@
+version: 2
+
+models:
+  - name: int_police_crimes
+    description: >
+      Intermediate model for police crimes with nested API fields flattened
+      into atomic columns for easier downstream modelling and analysis.
+    columns:
+      - name: crime_id
+        data_type: bigint
+        description: >
+          API-specific identifier for the crime. This is not a police identifier.
+
+      - name: persistent_id
+        data_type: string
+        description: >
+          Stable 64-character identifier for the crime record. This may be blank
+          for some records.
+
+      - name: crime_category
+        data_type: string
+        description: >
+          Category of the crime, such as anti-social-behaviour or bicycle-theft.
+
+      - name: crime_month
+        data_type: string
+        description: >
+          Month the crime was recorded, in YYYY-MM format.
+
+      - name: location_type
+        data_type: string
+        description: >
+          Type of police location, typically Force or BTP.
+
+      - name: location_subtype
+        data_type: string
+        description: >
+          More specific subtype for BTP locations where applicable.
+
+      - name: context
+        data_type: string
+        description: >
+          Additional context about the crime where supplied by the API.
+
+      - name: crime_latitude
+        data_type: string
+        description: >
+          Approximate latitude of the crime location.
+
+      - name: crime_longitude
+        data_type: string
+        description: >
+          Approximate longitude of the crime location.
+
+      - name: crime_street_id
+        data_type: bigint
+        description: >
+          API identifier for the approximate street location.
+
+      - name: crime_street_name
+        data_type: string
+        description: >
+          Human-readable name of the approximate street location.
+
+      - name: latest_outcome_category
+        data_type: string
+        description: >
+          Human-readable category of the latest recorded outcome for the crime.
+          This field may be null when no outcome is present.
+
+      - name: latest_outcome_date
+        data_type: string
+        description: >
+          Month of the latest recorded outcome in YYYY-MM format.
+          This field may be null when no outcome is present.
