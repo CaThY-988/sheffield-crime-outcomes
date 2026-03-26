@@ -6,6 +6,9 @@ terraform {
       source  = "hashicorp/aws"
       version = "~> 5.0"
     }
+    databricks = {
+      source  = "databricks/databricks"
+    }
   }
 }
 
@@ -15,4 +18,8 @@ provider "aws" {
 
 resource "aws_s3_bucket" "raw_data" {
   bucket = var.s3_bucket_name
+}
+
+provider "databricks" {
+  host  = var.databricks_host
 }
