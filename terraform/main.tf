@@ -14,5 +14,5 @@ provider "aws" {
 }
 
 resource "aws_s3_bucket" "raw_data" {
-  bucket = "zoomcamp-2026-sheffield-crime-outcomes-submission-eu-west-2-an"
+  bucket = "zoomcamp-2026-sheffield-crime-outcomes-submission-eu-west-2"
 }
