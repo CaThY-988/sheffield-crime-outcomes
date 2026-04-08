@@ -1,7 +1,26 @@
-aws_region     = "your-region"
-s3_bucket_name = "your-unique-bucket-name"
-databricks_host = "https://your-databricks-instance"
-databricks_external_location_name  = "sheffield_crime_external_location"
-databricks_storage_credential_name = "your_storage_credential_name"
-existing_databricks_iam_role_name = "your_databricks_iam_role_name"
-databricks_external_id = "your_external_id"
+# Copy this file to terraform.tfvars and fill in your real values.
+# Do NOT commit terraform.tfvars to version control.
+
+aws_region = "eu-west-2"
+
+aws_account_id = "123456789012"
+
+s3_bucket_name = "sheffield-crime-outcomes-raw-data"
+
+bucket_prefix = "police"
+
+iam_role_name = "sheffield-crime-databricks-s3-role"
+
+databricks_storage_credential_name = "sheffield_crime_raw_sc"
+
+databricks_external_location_name = "sheffield_crime_raw_el"
+
+databricks_principal = "account users"
+
+databricks_uc_master_role_arn = "arn:aws:iam::414351767826:role/unity-catalog-prod-UCMasterRole-XXXXXXXXXXXXX"
+
+bootstrap_external_id = "0000"
+
+# Leave these as-is. The script sets them automatically.
+databricks_external_id   = ""
+create_external_location = false
