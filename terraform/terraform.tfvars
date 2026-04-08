@@ -1,3 +1,5 @@
 aws_region     = "eu-west-2"
 s3_bucket_name = "zoomcamp-2026-sheffield-crime-outcomes-submission-eu-west-2"
 databricks_host = "dbc-166398ef-f9e4.cloud.databricks.com"
+databricks_external_location_name  = "sheffield_crime_external_location"
+databricks_storage_credential_name = "db_s3_credentials_databricks-s3-ingest-1e353"

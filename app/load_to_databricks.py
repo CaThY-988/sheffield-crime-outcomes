@@ -4,11 +4,12 @@ from pathlib import Path
 from dotenv import load_dotenv
 from databricks import sql
 
-load_dotenv(Path(__file__).resolve().parent / ".env")
+load_dotenv(Path(__file__).resolve().parent.parent / ".env")
 
 year = "2025"
 month = "01"
 datasets = ["crime", "outcome"]
+bucket = os.getenv("AWS_BUCKET_NAME")
 
 ddl_statements = []
 
@@ -18,7 +19,7 @@ for dataset in datasets:
         f"""
         CREATE TABLE workspace.src_police.{dataset}_data_{year}_{month}
         USING JSON
-        LOCATION 's3://zoomcamp--497675597195-eu-west-2-an/police/raw/{dataset}_data/date={year}-{month}/{dataset}_data_{year}-{month}.json'
+        LOCATION 's3://{bucket}/police/raw/{dataset}_data/date={year}-{month}/{dataset}_data_{year}-{month}.json'
         """
     ])
 
