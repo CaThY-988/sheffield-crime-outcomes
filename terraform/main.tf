@@ -8,12 +8,17 @@ terraform {
     }
     databricks = {
       source = "databricks/databricks"
+      source = "databricks/databricks"
     }
   }
 }
 
 provider "aws" {
   region = var.aws_region
+}
+
+provider "databricks" {
+  host = var.databricks_host
 }
 
 provider "databricks" {
@@ -50,23 +55,6 @@ data "aws_iam_policy_document" "databricks_assume_role" {
       variable = "sts:ExternalId"
       values   = [var.databricks_external_id]
     }
-  }
-}
-
-# Update the trust policy on the existing role
-resource "aws_iam_role" "databricks_role_trust_update" {
-  name               = data.aws_iam_role.existing_databricks_role.name
-  assume_role_policy = data.aws_iam_policy_document.databricks_assume_role.json
-
-  lifecycle {
-    ignore_changes = [
-      description,
-      force_detach_policies,
-      max_session_duration,
-      path,
-      permissions_boundary,
-      tags
-    ]
   }
 }
 
@@ -111,6 +99,8 @@ resource "databricks_external_location" "police_raw" {
   url             = "s3://${aws_s3_bucket.raw_data.bucket}/police/"
   credential_name = var.databricks_storage_credential_name
   comment         = "External location for Sheffield crime raw data"
+
+  depends_on = [aws_iam_role_policy.databricks_s3_access]
 
   depends_on = [aws_iam_role_policy.databricks_s3_access]
 }
