@@ -9,11 +9,11 @@ load_dotenv()
 # Sheffield city centre
 LAT = 53.3811
 LNG = -1.4701
-DATE = "2025-01"
 
 # AWS Vars
 BUCKET_NAME = os.getenv("AWS_BUCKET_NAME")
 
+# 
 datasets = [
     {
         "name": "crime_data",
@@ -25,29 +25,32 @@ datasets = [
     }
 ]
 
+dates = ["2025-01", "2025-02"]
+
 s3 = boto3.client("s3")
 
-for dataset in datasets:
-    url = f"https://data.police.uk/api/{dataset['endpoint']}"
-    s3_key = f"police/raw/{dataset['name']}/date={DATE}/{dataset['name']}_{DATE}.json"
+for date in dates:
+    for dataset in datasets:
+        url = f"https://data.police.uk/api/{dataset['endpoint']}"
+        s3_key = f"police/raw/{dataset['name']}/date={date}/{dataset['name']}_{date}.json"
 
-    params = {
-        "lat": LAT,
-        "lng": LNG,
-        "date": DATE
-    }
+        params = {
+            "lat": LAT,
+            "lng": LNG,
+            "date": date
+        }
 
-    response = requests.get(url, params=params, timeout=30)
-    response.raise_for_status()
+        response = requests.get(url, params=params, timeout=30)
+        response.raise_for_status()
 
-    data = response.json()
-    json_content = json.dumps(data)
+        data = response.json()
+        json_content = json.dumps(data)
 
-    s3.put_object(
-        Bucket=BUCKET_NAME,
-        Key=s3_key,
-        Body=json_content,
-        ContentType="application/json"
-    )
+        s3.put_object(
+            Bucket=BUCKET_NAME,
+            Key=s3_key,
+            Body=json_content,
+            ContentType="application/json"
+        )
 
-    print(f"Uploaded {dataset['name']} to s3://{BUCKET_NAME}/{s3_key}")
+        print(f"Uploaded {dataset['name']} to s3://{BUCKET_NAME}/{s3_key}")

@@ -35,9 +35,6 @@ locals {
   # Full S3 path used by Databricks external location
   s3_url = "s3://${aws_s3_bucket.raw_data.bucket}/${var.bucket_prefix}/"
 
-  # ARN for objects inside the prefix (used in IAM policy)
-  object_arn = "${aws_s3_bucket.raw_data.arn}/${var.bucket_prefix}/*"
-
   # Use real Databricks external ID if available, otherwise fallback to bootstrap value
   # This is what enables the 2-stage deployment
   resolved_external_id = var.databricks_external_id != "" ? var.databricks_external_id : var.bootstrap_external_id
@@ -52,7 +49,7 @@ resource "aws_s3_bucket" "raw_data" {
   bucket = var.s3_bucket_name
 
   tags = {
-    Project     = "sheffield-crime-outcomes"
+    Project = "sheffield-crime-outcomes"
   }
 }
 
@@ -73,7 +70,7 @@ resource "aws_s3_bucket_public_access_block" "raw_data" {
 # Define permissions for accessing S3
 data "aws_iam_policy_document" "s3_access" {
 
-  # Allow listing the bucket (restricted to the prefix)
+  # Allow listing the bucket, restricted to the chosen prefix
   statement {
     sid = "ListBucket"
 
@@ -87,7 +84,11 @@ data "aws_iam_policy_document" "s3_access" {
     condition {
       test     = "StringLike"
       variable = "s3:prefix"
-      values   = [var.bucket_prefix, "${var.bucket_prefix}/*"]
+      values = [
+        var.bucket_prefix,
+        "${var.bucket_prefix}/",
+        "${var.bucket_prefix}/*"
+      ]
     }
   }
 
@@ -101,7 +102,11 @@ data "aws_iam_policy_document" "s3_access" {
       "s3:DeleteObject"
     ]
 
-    resources = [local.object_arn]
+    resources = [
+      "${aws_s3_bucket.raw_data.arn}/${var.bucket_prefix}",
+      "${aws_s3_bucket.raw_data.arn}/${var.bucket_prefix}/",
+      "${aws_s3_bucket.raw_data.arn}/${var.bucket_prefix}/*"
+    ]
   }
 }
 
@@ -115,7 +120,9 @@ resource "aws_iam_policy" "databricks_s3" {
 # IAM Role (identity Databricks assumes)
 ########################################
 
-# Trust policy: defines WHO can assume this role
+# Trust policy: defines who can assume this role
+# Stage 1: only Databricks is allowed, using the bootstrap external ID
+# Stage 2: once the real Databricks external ID exists, Terraform also adds self-assume
 data "aws_iam_policy_document" "assume_role" {
 
   # Allow Databricks Unity Catalog to assume the role
@@ -128,8 +135,7 @@ data "aws_iam_policy_document" "assume_role" {
       identifiers = [var.databricks_uc_master_role_arn]
     }
 
-    # External ID condition (security requirement)
-    # This is the tricky part requiring 2-stage deployment
+    # Uses bootstrap external ID in stage 1, then real external ID in stage 2
     condition {
       test     = "StringEquals"
       variable = "sts:ExternalId"
@@ -137,14 +143,18 @@ data "aws_iam_policy_document" "assume_role" {
     }
   }
 
-  # Allow the role to assume itself (Databricks requirement)
-  statement {
-    sid     = "SelfAssumeRole"
-    actions = ["sts:AssumeRole"]
+  # Only add self-assume after the role already exists
+  dynamic "statement" {
+    for_each = var.databricks_external_id != "" ? [1] : []
 
-    principals {
-      type        = "AWS"
-      identifiers = ["arn:aws:iam::${var.aws_account_id}:role/${var.iam_role_name}"]
+    content {
+      sid     = "SelfAssumeRole"
+      actions = ["sts:AssumeRole"]
+
+      principals {
+        type        = "AWS"
+        identifiers = ["arn:aws:iam::${var.aws_account_id}:role/${var.iam_role_name}"]
+      }
     }
   }
 }
@@ -192,12 +202,11 @@ resource "databricks_external_location" "police_raw" {
   # S3 path Databricks will access
   url = local.s3_url
 
-  # Link to the storage credential created above
-  credential_name = databricks_storage_credential.raw.id
+  # Use the storage credential NAME, not the resource ID
+  credential_name = databricks_storage_credential.raw.name
 
   comment = "External location for Sheffield crime raw data"
 
-  # Ensure dependencies are created first
   depends_on = [
     databricks_storage_credential.raw,
     aws_iam_role.databricks_role
@@ -215,7 +224,7 @@ resource "databricks_grants" "police_raw" {
   external_location = databricks_external_location.police_raw[0].id
 
   grant {
-    principal  = var.databricks_principal
+    principal = var.databricks_principal
     privileges = [
       "READ_FILES",
       "WRITE_FILES",

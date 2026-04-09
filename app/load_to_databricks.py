@@ -6,22 +6,24 @@ from databricks import sql
 
 load_dotenv(Path(__file__).resolve().parent.parent / ".env")
 
-year = "2025"
-month = "01"
+years = ["2025"]
+months = ["01", "02"]
 datasets = ["crime", "outcome"]
 bucket = os.getenv("AWS_BUCKET_NAME")
 
 ddl_statements = []
 
-for dataset in datasets:
-    ddl_statements.extend([
-        f"DROP TABLE IF EXISTS workspace.src_police.{dataset}_data_{year}_{month}",
-        f"""
-        CREATE TABLE workspace.src_police.{dataset}_data_{year}_{month}
-        USING JSON
-        LOCATION 's3://{bucket}/police/raw/{dataset}_data/date={year}-{month}/{dataset}_data_{year}-{month}.json'
-        """
-    ])
+for year in years:
+    for month in months:
+        for dataset in datasets:
+            ddl_statements.extend([
+                f"DROP TABLE IF EXISTS workspace.src_police.{dataset}_data_{year}_{month}",
+                f"""
+                CREATE TABLE workspace.src_police.{dataset}_data_{year}_{month}
+                USING JSON
+                LOCATION 's3://{bucket}/police/raw/{dataset}_data/date={year}-{month}/{dataset}_data_{year}-{month}.json'
+                """
+            ])
 
 
 def main() -> None:
