@@ -39,3 +39,20 @@ terraform apply -auto-approve \
   -var="create_external_location=true"
 
 echo "==> Deployment complete"
+
+###############################################################################
+# OPTIONAL: VERIFY THE FINAL STATE SAFELY
+#
+# A plain `terraform plan` may show a rollback toward bootstrap if your defaults
+# are:
+#   - databricks_external_id = ""
+#   - create_external_location = false
+#
+# So if you want to inspect the FINAL state, do it with the same final inputs:
+#
+# terraform plan \
+#   -var="databricks_external_id=${EXTERNAL_ID}" \
+#   -var="create_external_location=true"
+#
+# If everything is correct, Terraform should report no changes needed.
+###############################################################################
