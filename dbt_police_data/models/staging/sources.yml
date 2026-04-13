@@ -5,8 +5,8 @@ sources:
     description: Raw police data loaded from S3 into Databricks.
     schema: src_police
     tables:
-      - name: crime_data_2025_01
+      - name: crime_data
         description: Raw nested JSON table for police crimes for January 2025.
 
-      - name: outcome_data_2025_01
+      - name: outcome_data
         description: Raw nested JSON table for police outcomes for January 2025.
