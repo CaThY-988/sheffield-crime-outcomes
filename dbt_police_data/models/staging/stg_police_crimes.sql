@@ -10,4 +10,4 @@ select
     cast(month as string) as crime_month,
     cast(location_type as string) as location_type,
     outcome_status
-from {{ source('src_police', 'crime_data_2025_01') }}
+from {{ source('src_police', 'crime_data') }}
