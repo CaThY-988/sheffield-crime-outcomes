@@ -27,30 +27,36 @@ datasets = [
 
 dates = ["2025-01", "2025-02", "2025-03"]
 
-s3 = boto3.client("s3")
+def main() -> None:
+    if not BUCKET_NAME:
+        raise ValueError("AWS_BUCKET_NAME is not set")
+    s3 = boto3.client("s3")
 
-for date in dates:
-    for dataset in datasets:
-        url = f"https://data.police.uk/api/{dataset['endpoint']}"
-        s3_key = f"police/raw/{dataset['name']}/date={date}/{dataset['name']}_{date}.json"
+    for date in dates:
+        for dataset in datasets:
+            url = f"https://data.police.uk/api/{dataset['endpoint']}"
+            s3_key = f"police/raw/{dataset['name']}/date={date}/{dataset['name']}_{date}.json"
 
-        params = {
-            "lat": LAT,
-            "lng": LNG,
-            "date": date
-        }
+            params = {
+                "lat": LAT,
+                "lng": LNG,
+                "date": date
+            }
 
-        response = requests.get(url, params=params, timeout=30)
-        response.raise_for_status()
+            response = requests.get(url, params=params, timeout=30)
+            response.raise_for_status()
 
-        data = response.json()
-        json_content = json.dumps(data)
+            data = response.json()
+            json_content = json.dumps(data)
 
-        s3.put_object(
-            Bucket=BUCKET_NAME,
-            Key=s3_key,
-            Body=json_content,
-            ContentType="application/json"
-        )
+            s3.put_object(
+                Bucket=BUCKET_NAME,
+                Key=s3_key,
+                Body=json_content,
+                ContentType="application/json"
+            )
 
-        print(f"Uploaded {dataset['name']} to s3://{BUCKET_NAME}/{s3_key}")
+            print(f"Uploaded {dataset['name']} to s3://{BUCKET_NAME}/{s3_key}")
+
+if __name__ == "__main__":
+    main()
