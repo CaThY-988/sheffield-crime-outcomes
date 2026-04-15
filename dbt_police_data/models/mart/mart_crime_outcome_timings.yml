@@ -1,0 +1,31 @@
+version: 2
+
+models:
+  - name: mart_crime_outcome_timings
+    description: Aggregated monthly crime outcome timing metrics by crime category, based on the number of days between the recorded crime month and the latest outcome date.
+
+    columns:
+      - name: crime_month
+        description: Month the crime was recorded, in yyyy-MM format.
+        tests:
+          - not_null
+
+      - name: crime_category
+        description: Crime category for the grouped timing metrics.
+        tests:
+          - not_null
+
+      - name: crime_count
+        description: Number of crimes in the month and category with a non-null latest outcome date.
+
+      - name: avg_days_to_outcome
+        description: Average number of days between the crime month and the latest recorded outcome date.
+
+      - name: median_days_to_outcome
+        description: Median number of days between the crime month and the latest recorded outcome date.
+
+      - name: min_days_to_outcome
+        description: Minimum number of days between the crime month and the latest recorded outcome date.
+
+      - name: max_days_to_outcome
+        description: Maximum number of days between the crime month and the latest recorded outcome date.

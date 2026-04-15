@@ -1,0 +1,33 @@
+version: 2
+
+models:
+  - name: mart_crime_map
+    description: One row per crime with coordinates and minimal attributes for the Sheffield crime map visualisation.
+    columns:
+      - name: crime_id
+        description: Unique identifier for the crime.
+        tests:
+          - not_null
+          - unique
+
+      - name: crime_month
+        description: Month the crime was recorded.
+
+      - name: crime_category
+        description: Crime category used for map filtering and tooltip display.
+
+      - name: crime_latitude
+        description: Latitude of the crime location.
+        tests:
+          - not_null
+
+      - name: crime_longitude
+        description: Longitude of the crime location.
+        tests:
+          - not_null
+
+      - name: crime_street_name
+        description: Street name associated with the crime location.
+
+      - name: latest_outcome_category
+        description: Latest available outcome category for the crime.
