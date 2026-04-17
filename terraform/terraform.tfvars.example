@@ -1,26 +1,37 @@
-# Copy this file to terraform.tfvars and fill in your real values.
-# Do NOT commit terraform.tfvars to version control.
+########################################
+# terraform.tfvars.example
+#
+# Copy to terraform.tfvars and update values.
+# Do NOT commit terraform.tfvars.
+########################################
 
-aws_region = "eu-west-2"
+# -------- MUST EDIT --------
 
-aws_account_id = "123456789012"
+aws_region = "aws_region"
 
-s3_bucket_name = "sheffield-crime-outcomes-raw-data"
+# Your 12-digit AWS account ID (not access key)
+aws_account_id = "XXXXXXXXXXXXX"
 
-bucket_prefix = "police"
+# Must be globally unique across AWS
+s3_bucket_name = "your-unique-bucket-name"
 
-iam_role_name = "sheffield-crime-databricks-s3-role"
+# Your Databricks Unity Catalog master role ARN
+databricks_uc_master_role_arn = "arn:aws:iam::XXXX:role/..."
 
-databricks_storage_credential_name = "sheffield_crime_raw_sc"
-
-databricks_external_location_name = "sheffield_crime_raw_el"
-
+# Must exist in your Databricks workspace
 databricks_principal = "account users"
 
-databricks_uc_master_role_arn = "arn:aws:iam::414351767826:role/unity-catalog-prod-UCMasterRole-XXXXXXXXXXXXX"
+# -------- CHANGE IF NAME EXISTS --------
 
+iam_role_name = "sheffield-crime-role"
+
+databricks_storage_credential_name = "sheffield_crime_sc"
+
+databricks_external_location_name = "sheffield_crime_el"
+
+# -------- LEAVE AS-IS --------
+
+bucket_prefix = "police/raw"
 bootstrap_external_id = "0000"
-
-# Leave these as-is. The script sets them automatically.
-databricks_external_id   = ""
+databricks_external_id = ""
 create_external_location = false

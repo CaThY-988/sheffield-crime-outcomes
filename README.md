@@ -79,7 +79,10 @@ cp terraform.tfvars.example terraform.tfvars
 # fill in required values
 cd ..
 
-bash scripts/terraform_deploy.sh
+set -a
+source .env
+set +a
+bash terraform/deploy.sh
 ```
 
 This will:
