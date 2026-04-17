@@ -1,12 +1,48 @@
 services:
-  pipeline:
-    build: .
+  airflow:
+    build:
+      context: .
+      dockerfile: airflow/Dockerfile
+    container_name: sheffield-crime-airflow
     env_file:
       - .env
     environment:
+      AIRFLOW__CORE__EXECUTOR: SequentialExecutor
+      AIRFLOW__CORE__LOAD_EXAMPLES: "False"
+      AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: "True"
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: sqlite:////opt/airflow/airflow.db
+      AIRFLOW__CORE__FERNET_KEY: ""
+      AIRFLOW__WEBSERVER__EXPOSE_CONFIG: "True"
+
       AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
       AWS_DEFAULT_REGION: ${AWS_DEFAULT_REGION}
       DATABRICKS_TOKEN: ${DATABRICKS_TOKEN}
+      DATABRICKS_HOST: ${DATABRICKS_HOST}
+      DATABRICKS_HTTP_PATH: ${DATABRICKS_HTTP_PATH}
+      AWS_BUCKET_NAME: ${AWS_BUCKET_NAME}
     volumes:
-      - ./data:/app/data
+      - ./airflow/dags:/opt/airflow/dags
+      - ./app:/opt/airflow/app
+      - ./dbt_police_data:/opt/airflow/dbt_police_data
+    ports:
+      - "8080:8080"
+    command: airflow standalone
+    
+  streamlit:
+    build:
+      context: .
+      dockerfile: Dockerfile   # reuse your existing UV-based image
+    container_name: sheffield-crime-streamlit
+    env_file:
+      - .env
+    ports:
+      - "8501:8501"
+    command: >
+      streamlit run streamlit/main.py
+      --server.address 0.0.0.0
+      --server.port 8501
+    volumes:
+      - ./streamlit:/app/streamlit
+      - ./app:/app/app
+      - ./dbt_police_data:/app/dbt_police_data

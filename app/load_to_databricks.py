@@ -7,7 +7,7 @@ from databricks import sql
 load_dotenv(Path(__file__).resolve().parent.parent / ".env")
 
 years = ["2025"]
-months = ["01", "02", "03"]
+months = ["01", "02", "03", "04", "05", "06"]
 bucket = os.getenv("AWS_BUCKET_NAME")
 
 datasets = [
