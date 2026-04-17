@@ -48,7 +48,11 @@ datasets = [
     },
 ]
 
-ddl_statements = []
+ddl_statements = [
+    """
+    CREATE SCHEMA IF NOT EXISTS workspace.src_police
+    """
+]
 
 for dataset in datasets:
     schema = dataset["schema"]
