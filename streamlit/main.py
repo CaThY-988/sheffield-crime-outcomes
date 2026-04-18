@@ -1,11 +1,12 @@
 import os
 
+import folium
 import pandas as pd
+import plotly.express as px
 import streamlit as st
 from databricks import sql
 from dotenv import load_dotenv
-import matplotlib.pyplot as plt
-
+from folium.plugins import MarkerCluster
 
 load_dotenv()
 
@@ -70,10 +71,10 @@ def load_timing_data() -> pd.DataFrame:
         crime_month,
         crime_category,
         crime_count,
-        avg_days_to_outcome,
-        median_days_to_outcome,
-        min_days_to_outcome,
-        max_days_to_outcome
+        avg_months_to_outcome,
+        median_months_to_outcome,
+        min_months_to_outcome,
+        max_months_to_outcome
     from workspace.analytics_police.mart_crime_outcome_timings
     """
     df = run_query(query)
@@ -83,10 +84,10 @@ def load_timing_data() -> pd.DataFrame:
 
     numeric_cols = [
         "crime_count",
-        "avg_days_to_outcome",
-        "median_days_to_outcome",
-        "min_days_to_outcome",
-        "max_days_to_outcome",
+        "avg_months_to_outcome",
+        "median_months_to_outcome",
+        "min_months_to_outcome",
+        "max_months_to_outcome",
     ]
 
     for col in numeric_cols:
@@ -99,12 +100,12 @@ def load_timing_data() -> pd.DataFrame:
 
 def main():
     st.title("Sheffield Crime Dashboard")
-    st.caption("Data Zoomcamp project using dbt, Databricks, and Streamlit")
+    st.caption("Data Zoomcamp project 2026")
 
-    map_df = load_map_data()
+    map_data = load_map_data()
     timing_df = load_timing_data()
 
-    if map_df.empty:
+    if map_data.empty:
         st.error("No data returned from mart_crime_map.")
         return
 
@@ -113,21 +114,21 @@ def main():
 
     st.sidebar.header("Filters")
 
-    month_options = sorted(map_df["crime_month"].dropna().unique().tolist())
+    month_options = sorted(map_data["crime_month"].dropna().unique().tolist())
     selected_month = st.sidebar.selectbox(
         "Crime month",
         options=["All"] + month_options,
         index=0,
     )
 
-    category_options = sorted(map_df["crime_category"].dropna().unique().tolist())
+    category_options = sorted(map_data["crime_category"].dropna().unique().tolist())
     selected_categories = st.sidebar.multiselect(
         "Crime category",
         options=category_options,
         default=category_options,
     )
 
-    filtered_map_df = map_df.copy()
+    filtered_map_df = map_data.copy()
 
     if selected_month != "All":
         filtered_map_df = filtered_map_df[
@@ -143,47 +144,109 @@ def main():
 
     kpi_col1, kpi_col2, kpi_col3 = st.columns(3)
     kpi_col1.metric("Mapped crimes", f"{len(filtered_map_df):,}")
-    kpi_col2.metric(
-        "Crime categories selected",
-        f"{len(selected_categories):,}",
-    )
-    kpi_col3.metric(
-        "Months available",
-        f"{len(month_options):,}",
-    )
+    kpi_col2.metric("Crime categories selected", f"{len(selected_categories):,}")
+    kpi_col3.metric("Months available", f"{len(month_options):,}")
 
     left_col, right_col = st.columns(2)
 
     with left_col:
-        st.subheader("Crime map")
+        st.subheader("Crime map views")
 
         if filtered_map_df.empty:
             st.info("No map data for the selected filters.")
         else:
-            map_plot_df = filtered_map_df.rename(
+            map_df = filtered_map_df.rename(
                 columns={
                     "crime_latitude": "lat",
                     "crime_longitude": "lon",
                 }
-            )[["lat", "lon"]]
+            ).copy()
 
-            st.map(map_plot_df, use_container_width=True)
+            st.markdown("**Clustered crime locations**")
+            st.caption(
+                "Each marker represents an individual crime. Nearby crimes are grouped "
+                "into clusters to make dense areas easier to explore."
+            )
 
-            with st.expander("Preview mapped records"):
+            min_lat = map_df["lat"].min()
+            max_lat = map_df["lat"].max()
+            min_lon = map_df["lon"].min()
+            max_lon = map_df["lon"].max()
+
+            m = folium.Map(
+                location=[map_df["lat"].mean(), map_df["lon"].mean()],
+                tiles="CartoDB Positron",
+                zoom_start=11,
+            )
+
+            marker_cluster = MarkerCluster().add_to(m)
+
+            for _, row in map_df.iterrows():
+                folium.Marker(
+                    [row["lat"], row["lon"]],
+                    tooltip=f"{row['crime_category']} - {row['crime_street_name']}",
+                ).add_to(marker_cluster)
+
+            if min_lat != max_lat and min_lon != max_lon:
+                m.fit_bounds([[min_lat, min_lon], [max_lat, max_lon]])
+
+            st.components.v1.html(m._repr_html_(), height=420)
+
+            st.markdown("**Crimes plotted by category**")
+            st.caption(
+                "Crimes are plotted individually and coloured by category, making it "
+                "easier to compare how different crime types are distributed."
+            )
+
+            fig = px.scatter_map(
+                map_df,
+                lat="lat",
+                lon="lon",
+                color="crime_category",
+                hover_name="crime_street_name",
+                hover_data={
+                    "crime_month": True,
+                    "lat": False,
+                    "lon": False,
+                },
+                zoom=11,
+                center={
+                    "lat": map_df["lat"].mean(),
+                    "lon": map_df["lon"].mean(),
+                },
+                map_style="carto-positron",
+                opacity=0.7,
+            )
+
+            fig.update_layout(
+                margin={"r": 0, "t": 0, "l": 0, "b": 0},
+                legend_title_text="Crime category",
+                height=420,
+            )
+
+            st.plotly_chart(fig, use_container_width=True)
+
+            preview_df = (
+                filtered_map_df.groupby(
+                    ["crime_month", "crime_category"],
+                    as_index=False,
+                )
+                .agg(sum_crimes=("crime_id", "count"))
+                .sort_values(
+                    ["crime_month", "sum_crimes"],
+                    ascending=[False, False],
+                )
+            )
+
+            with st.expander("Preview mapped records summary"):
                 st.dataframe(
-                    filtered_map_df[
-                        [
-                            "crime_month",
-                            "crime_category",
-                            "crime_street_name",
-                            "latest_outcome_category",
-                        ]
-                    ].head(20),
+                    preview_df,
                     use_container_width=True,
+                    hide_index=True,
                 )
 
     with right_col:
-        st.subheader("Median days to outcome by crime category")
+        st.subheader("Crime outcome analysis")
 
         if timing_df.empty:
             st.info("No timing data available.")
@@ -203,38 +266,154 @@ def main():
                 filtered_timing_df = filtered_timing_df.iloc[0:0]
 
             if filtered_timing_df.empty:
-                st.info("No timing data for the selected filters.")
+                st.info("No outcome timing data for the selected filters.")
             else:
-                chart_df = (
-                    filtered_timing_df.groupby("crime_category", as_index=False)
+                st.markdown("**Average months to latest outcome by category**")
+                st.caption(
+                    "Shows the average time from crime month to latest recorded outcome, "
+                    "measured in whole months."
+                )
+
+                category_summary_df = (
+                    filtered_timing_df.assign(
+                        weighted_months=lambda df: (
+                            df["avg_months_to_outcome"] * df["crime_count"]
+                        )
+                    )
+                    .groupby("crime_category", as_index=False)
                     .agg(
-                        median_days_to_outcome=("median_days_to_outcome", "mean"),
+                        weighted_months=("weighted_months", "sum"),
+                        total_crimes=("crime_count", "sum"),
+                        median_months_to_outcome=("median_months_to_outcome", "mean"),
+                        min_months_to_outcome=("min_months_to_outcome", "min"),
+                        max_months_to_outcome=("max_months_to_outcome", "max"),
+                    )
+                )
+
+                category_summary_df["avg_months_to_outcome"] = (
+                    category_summary_df["weighted_months"]
+                    / category_summary_df["total_crimes"]
+                )
+
+                category_summary_df = category_summary_df.sort_values(
+                    "avg_months_to_outcome",
+                    ascending=False,
+                )
+
+                fig_bar = px.bar(
+                    category_summary_df,
+                    x="crime_category",
+                    y="avg_months_to_outcome",
+                    color="avg_months_to_outcome",
+                    hover_data={
+                        "total_crimes": True,
+                        "median_months_to_outcome": ":.2f",
+                        "min_months_to_outcome": True,
+                        "max_months_to_outcome": True,
+                        "weighted_months": False,
+                    },
+                )
+
+                fig_bar.update_layout(
+                    xaxis_title="Crime category",
+                    yaxis_title="Average months to latest outcome",
+                    xaxis_tickangle=45,
+                    margin={"r": 0, "t": 0, "l": 0, "b": 0},
+                    height=420,
+                    coloraxis_showscale=False,
+                )
+
+                st.plotly_chart(fig_bar, use_container_width=True)
+
+                st.markdown("**Average outcome timing trends over time**")
+                st.caption(
+                    "Tracks how average months to latest outcome change across crime months "
+                    "for each selected category."
+                )
+
+                trend_df = (
+                    filtered_timing_df.assign(
+                        weighted_months=lambda df: (
+                            df["avg_months_to_outcome"] * df["crime_count"]
+                        )
+                    )
+                    .groupby(
+                        ["crime_month", "crime_category"],
+                        as_index=False,
+                    )
+                    .agg(
+                        weighted_months=("weighted_months", "sum"),
                         crime_count=("crime_count", "sum"),
                     )
-                    .sort_values("median_days_to_outcome", ascending=False)
+                    .sort_values("crime_month")
                 )
 
-                fig, ax = plt.subplots(figsize=(10, 6))
-                ax.bar(
-                    chart_df["crime_category"],
-                    chart_df["median_days_to_outcome"],
+                trend_df["avg_months_to_outcome"] = (
+                    trend_df["weighted_months"] / trend_df["crime_count"]
                 )
-                ax.set_xlabel("Crime category")
-                ax.set_ylabel("Median days to outcome")
-                ax.set_title("Median days to outcome by crime category")
-                plt.xticks(rotation=45, ha="right")
-                plt.tight_layout()
 
-                st.pyplot(fig, use_container_width=True)
+                fig_line = px.line(
+                    trend_df,
+                    x="crime_month",
+                    y="avg_months_to_outcome",
+                    color="crime_category",
+                    markers=True,
+                    hover_data={
+                        "crime_count": True,
+                        "weighted_months": False,
+                    },
+                )
 
-                with st.expander("Preview timing summary"):
-                    st.dataframe(chart_df, use_container_width=True)
+                fig_line.update_layout(
+                    xaxis_title="Crime month",
+                    yaxis_title="Average months to latest outcome",
+                    margin={"r": 0, "t": 0, "l": 0, "b": 0},
+                    height=420,
+                    legend_title_text="Crime category",
+                )
+
+                st.plotly_chart(fig_line, use_container_width=True)
+
+                preview_summary_df = category_summary_df[
+                    [
+                        "crime_category",
+                        "total_crimes",
+                        "avg_months_to_outcome",
+                        "median_months_to_outcome",
+                        "min_months_to_outcome",
+                        "max_months_to_outcome",
+                    ]
+                ].copy()
+
+                with st.expander("Preview outcome timing summary"):
+                    st.dataframe(
+                        preview_summary_df,
+                        use_container_width=True,
+                        hide_index=True,
+                    )
+
+                with st.expander("Preview outcome timing trend data"):
+                    st.dataframe(
+                        trend_df[
+                            [
+                                "crime_month",
+                                "crime_category",
+                                "crime_count",
+                                "avg_months_to_outcome",
+                            ]
+                        ],
+                        use_container_width=True,
+                        hide_index=True,
+                    )
 
     st.subheader("About this dashboard")
     st.write(
         """
         This dashboard shows crime locations from `mart_crime_map`
         and outcome timing metrics from `mart_crime_outcome_timings`.
+        Outcome timing is measured in whole months, because the public
+        Police data provides crime dates at month level rather than
+        exact offence dates.
         Use the filters in the sidebar to focus on specific months
         and crime categories.
         """

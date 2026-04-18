@@ -28,7 +28,7 @@ with DAG(
         task_id="load_to_databricks",
         bash_command="""
             set -e
-            echo "🚀 ]Starting Databricks load..."
+            echo "🚀 Starting Databricks load..."
             cd /opt/airflow
             python app/load_to_databricks.py
             echo "✅ Databricks load complete"
