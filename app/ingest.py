@@ -3,6 +3,7 @@ import json
 import os
 import boto3
 from dotenv import load_dotenv
+from date_utils import iter_complete_months
 
 load_dotenv()
 
@@ -25,7 +26,7 @@ datasets = [
     }
 ]
 
-dates = ["2025-01", "2025-02", "2025-03", "2025-04", "2025-05", "2025-06"]
+dates = iter_complete_months("2025-01-01")
 
 def main() -> None:
     if not BUCKET_NAME:

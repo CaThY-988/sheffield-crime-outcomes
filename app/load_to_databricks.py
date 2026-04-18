@@ -1,14 +1,22 @@
+import json
 import os
 from pathlib import Path
 
+import boto3
 from dotenv import load_dotenv
 from databricks import sql
 
+from date_utils import iter_complete_months
+
 load_dotenv(Path(__file__).resolve().parent.parent / ".env")
 
-years = ["2025"]
-months = ["01", "02", "03", "04", "05", "06"]
+months = iter_complete_months("2025-01-01")
 bucket = os.getenv("AWS_BUCKET_NAME")
+
+if not bucket:
+    raise ValueError("AWS_BUCKET_NAME is not set")
+
+s3 = boto3.client("s3")
 
 datasets = [
     {
@@ -48,6 +56,25 @@ datasets = [
     },
 ]
 
+
+def s3_json_has_rows(bucket: str, key: str) -> bool:
+    """
+    Return True if the S3 JSON object exists and contains at least one record.
+    Assumes the file content is a JSON array, e.g. [] or [{...}, {...}].
+    """
+    try:
+        response = s3.get_object(Bucket=bucket, Key=key)
+    except s3.exceptions.NoSuchKey:
+        return False
+
+    body = response["Body"].read().decode("utf-8").strip()
+    if not body:
+        return False
+
+    data = json.loads(body)
+    return isinstance(data, list) and len(data) > 0
+
+
 ddl_statements = [
     """
     CREATE SCHEMA IF NOT EXISTS workspace.src_police
@@ -71,45 +98,51 @@ for dataset in datasets:
         """
     )
 
-for year in years:
-    for month in months:
-        ingest_year_month = f"{year}-{month}"
+for ingest_year_month in months:
+    for dataset in datasets:
+        dataset_name = dataset["name"]
+        schema = dataset["schema"]
+        transforms = dataset.get("transforms", {})
 
-        for dataset in datasets:
-            dataset_name = dataset["name"]
-            schema = dataset["schema"]
-            transforms = dataset.get("transforms", {})
+        s3_key = (
+            f"police/raw/{dataset_name}/"
+            f"date={ingest_year_month}/{dataset_name}_{ingest_year_month}.json"
+        )
 
-            select_columns = []
-            for col in schema.keys():
-                if col == "ingest_year_month":
-                    select_columns.append(f"'{ingest_year_month}' AS ingest_year_month")
-                elif col == "loaded_at":
-                    select_columns.append("current_timestamp() AS loaded_at")
-                elif col in transforms:
-                    select_columns.append(f"{transforms[col]} AS {col}")
-                else:
-                    select_columns.append(col)
-
-            columns_sql = ",\n    ".join(select_columns)
-
-            source_path = (
-                f"s3://{bucket}/police/raw/{dataset_name}/"
-                f"date={ingest_year_month}/{dataset_name}_{ingest_year_month}.json"
+        if not s3_json_has_rows(bucket, s3_key):
+            print(
+                f"Skipping {dataset_name} for {ingest_year_month}: "
+                f"source file missing or empty at s3://{bucket}/{s3_key}"
             )
+            continue
 
-            ddl_statements.extend([
-                f"""
-                DELETE FROM workspace.src_police.{dataset_name}
-                WHERE ingest_year_month = '{ingest_year_month}'
-                """,
-                f"""
-                INSERT INTO workspace.src_police.{dataset_name}
-                SELECT
-                    {columns_sql}
-                FROM json.`{source_path}`
-                """
-            ])
+        select_columns = []
+        for col in schema.keys():
+            if col == "ingest_year_month":
+                select_columns.append(f"'{ingest_year_month}' AS ingest_year_month")
+            elif col == "loaded_at":
+                select_columns.append("current_timestamp() AS loaded_at")
+            elif col in transforms:
+                select_columns.append(f"{transforms[col]} AS {col}")
+            else:
+                select_columns.append(col)
+
+        columns_sql = ",\n    ".join(select_columns)
+
+        source_path = f"s3://{bucket}/{s3_key}"
+
+        ddl_statements.extend([
+            f"""
+            DELETE FROM workspace.src_police.{dataset_name}
+            WHERE ingest_year_month = '{ingest_year_month}'
+            """,
+            f"""
+            INSERT INTO workspace.src_police.{dataset_name}
+            SELECT
+                {columns_sql}
+            FROM json.`{source_path}`
+            """
+        ])
 
 
 def main() -> None:
