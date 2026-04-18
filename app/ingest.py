@@ -1,4 +1,5 @@
 import requests
+import time
 import json
 import os
 import boto3
@@ -45,6 +46,10 @@ def main() -> None:
             }
 
             response = requests.get(url, params=params, timeout=30)
+            if response.status_code == 429:
+                print("Hit rate limit, sleeping for 10 seconds and retrying once...")
+                time.sleep(10)
+                response = requests.get(url, params=params, timeout=30)
             response.raise_for_status()
 
             data = response.json()
