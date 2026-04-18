@@ -7,6 +7,7 @@ from airflow.operators.bash import BashOperator
 with DAG(
     dag_id="sheffield_crime_pipeline",
     start_date=datetime(2025, 1, 1),
+    end_date=datetime(2027, 1, 1),
     schedule="@monthly",
     catchup=False,
     tags=["crime", "databricks", "dbt"],
