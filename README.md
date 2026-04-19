@@ -35,32 +35,17 @@ The project follows a modern data engineering architecture:
 
 ```mermaid
 graph LR;
-    A[UK Police Crime Outcomes Data] --> B[Airflow Pipeline];
-    B --> C[AWS S3 Raw Data];
-    C --> D[Databricks Processing];
-    D --> E[dbt Transformations];
-    E --> F[Analytics-Ready Tables];
-    F --> G[Streamlit Dashboard];
-    G --> H[Users];
-    I[Docker] --> B;
-    J[Terraform] -.-> C;
-    J -.-> D;
-    K[deploy.sh] -.-> J;
-```
+    A[Source data<br/>UK Police Crime Outcomes] --> B[Cloud storage<br/>AWS S3 Bucket];
+    B --> C[Data warehouse<br/>Databricks];
+    C --> D[Transformations<br/>dbt];
+    D --> E[Dashboard<br/>Streamlit];
 
-```mermaid
-graph LR;
-    A[UK Police Crime Outcomes Data] -->|ingested by| B[Airflow Pipeline];
-    B -->|stores raw data in| C[AWS S3 Raw Data];
-    C -->|processed in| D[Databricks];
-    D -->|modelled with| E[dbt Transformations];
-    E -->|serves| F[Analytics-Ready Tables];
-    F -->|visualised in| G[Streamlit Dashboard];
-    G --> H[Users];
-    I[Docker] -->|containerises| B;
-    J[Terraform] -.->|provisions| C;
-    J -.->|provisions| D;
-    K[deploy.sh] -.->|automates| J;
+    F[Batch orchestration<br/>Airflow] -.-> B;
+    F -.-> C;
+    F -.-> D;
+
+    G[Infrastructure as code<br/>Terraform] -.-> B;
+    G -.-> C;
 ```
 
 The choice of tooling was influenced by the technologies used in my company, with the aim of gaining practical experience in these specific tools. As a result, this project incorporates tools such as Apache Airflow, AWS, and Databrick. As these were not covered in the course materials, additional effort has been made to explain and document these technologies.
@@ -155,7 +140,10 @@ This structure ensures consistent data modelling, reduces duplication of logic, 
 
 ## Dashboard
 
-The final layer of the project is an interactive dashboard built in Streamlit, which provides a user-friendly interface for exploring the transformed crime and stop-and-search data. The dashboard connects directly to Databricks using the SQL connector and queries analytics-ready mart tables produced by dbt. To improve performance and usability, query results are cached and presented through interactive filters, summary metrics, maps, and charts.
+🔗 **Live Dashboard**:  
+https://sheffield-crime-outcomes-alvxbaan9jegr4nnj35ubr.streamlit.app/
+
+The final layer of the project is an interactive dashboard built in Streamlit, which provides a user-friendly interface for exploring the transformed crime and stop-and-search data. The dashboard connects directly to Databricks using the SQL connector and queries analytics-ready mart tables produced by dbt. The dashboard is hosted on Streamlit Community Cloud.
 
 The dashboard includes the following views:
 
@@ -163,8 +151,6 @@ The dashboard includes the following views:
 - **Crime outcome analysis**: charts showing average time to latest outcome by crime category and trends over time  
 - **Stop and search analysis**: visualisations of search reasons over time and the relationship between objects of search and recorded outcomes  
 - **Dashboard filtering and previews**: a reporting month filter, KPI summary cards, and expandable preview tables to support exploration and transparency  
-
-The dashboard is deployed in the cloud using :contentReference[oaicite:0]{index=0} Community Cloud and can be accessed here: https://sheffield-crime-outcomes-alvxbaan9jegr4nnj35ubr.streamlit.app/
 
 > [!NOTE]
 > **Streamlit** is an open-source Python framework for building interactive data applications. It allows dashboards to be created quickly using Python code, making it well suited to analytics projects where the focus is on data exploration and visualisation.
