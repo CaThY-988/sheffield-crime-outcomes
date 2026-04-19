@@ -1,11 +1,14 @@
 # sheffield-crime-outcomes
-Data Zoomcamp Final Project Space (Batch)
+Data Zoomcamp Final Project 2026
 
-Contents:
+**Contents:**
 - Problem Description
 - Project overview
-- Dashboard
-  - Streamlit
+  - Infrastructure as Code
+  - Batch Data Ingestion
+  - Cloud-based Architecture
+  - Transformations
+  - Dashboard
 - Reproducibility Guide 
 
 # Problem Description
@@ -46,6 +49,7 @@ graph LR;
     subgraph Supporting_Layers
         F[Batch orchestration<br/>Airflow]
         G[Infrastructure as code<br/>Terraform]
+        H[Containerised runtime<br/>Docker]
     end
 ```
 
@@ -85,11 +89,10 @@ The DAG executes Python scripts located in the app/ directory:
 - ingest.py: Retrieves data from the UK Police API (crimes-street/all-crime and outcomes-at-location) using the latitude and longitude for Sheffield and a list of specified year-month values. The data is serialised as JSON and uploaded to S3 using partitioned paths (e.g. police/raw/<dataset>/date=<YYYY-MM>/...) to create a structured raw data layer.
 - load_to_databricks.py: Connects to Databricks using the SQL connector, creates Delta tables in workspace.src_police if they do not already exist, and loads the JSON data from S3 into these tables. It enriches the data with metadata fields such as ingest_year_month and loaded_at, and performs basic transformations on nested fields before insertion.
 
-## Cloud
+## Cloud-based Architecture
 
 This project uses a cloud-based architecture that separates storage and compute, improving scalability, flexibility, and reproducibility. This approache aligns with modern data engineering best practices, as it enables independent scaling of storage and processing, improves cost efficiency, and allows the pipeline to evolve as data volume and complexity increase.
 
----
 
 ### AWS (S3 Data Lake)
 
@@ -107,9 +110,7 @@ Databricks is used as the data warehouse and compute layer for transforming and 
 
 #### Table Optimisation Strategy
 
-To optimise query performance, the tables are configured using:
-
-- **Liquid clustering (`CLUSTER BY AUTO`)**
+To optimise query performance, the tables are configured using: **Liquid clustering (`CLUSTER BY AUTO`)**
 
 This allows Databricks to automatically determine and adapt clustering keys based on actual query patterns over time.
 
@@ -141,8 +142,7 @@ This structure ensures consistent data modelling, reduces duplication of logic, 
 
 ## Dashboard
 
-🔗 **Live Dashboard**:  
-https://sheffield-crime-outcomes-alvxbaan9jegr4nnj35ubr.streamlit.app/
+🔗 **Live Dashboard**: [View here](https://sheffield-crime-outcomes-alvxbaan9jegr4nnj35ubr.streamlit.app/)
 
 The final layer of the project is an interactive dashboard built in Streamlit, which provides a user-friendly interface for exploring the transformed crime and stop-and-search data. The dashboard connects directly to Databricks using the SQL connector and queries analytics-ready mart tables produced by dbt. The dashboard is hosted on Streamlit Community Cloud.
 
