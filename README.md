@@ -4,11 +4,6 @@ Data Zoomcamp Final Project 2026
 **Contents:**
 - Problem Description
 - Project overview
-  - Infrastructure as Code
-  - Batch Data Ingestion
-  - Cloud-based Architecture
-  - Transformations
-  - Dashboard
 - Reproducibility Guide 
 
 # Problem Description
@@ -17,10 +12,10 @@ Crime data in Sheffield provides valuable insights into patterns, locations, and
 
 Users need a way to:
 
-Explore crime trends over time
-Compare different crime types and locations
-Understand how crime outcomes vary across categories
-Interact with data without requiring advanced analytical skills
+- Explore crime trends over time
+- Compare different crime types and locations
+- Understand how crime outcomes vary across categories
+- Interact with data without requiring advanced analytical skills
 
 This project addresses these challenges by transforming raw Sheffield crime data into an interactive dashboard, enabling users to explore patterns and outcomes through intuitive visualisations and filters.
 
@@ -38,7 +33,7 @@ The project follows a modern data engineering architecture:
 
 ![img](docs/images/data-pipeline.png)
 
-The choice of tooling was influenced by the technologies used in my company, with the aim of gaining practical experience in these specific tools. As a result, this project incorporates tools such as Apache Airflow, AWS, and Databrick. As these were not covered in the course materials, additional effort has been made to explain and document these technologies.
+The choice of tooling was influenced by the technologies used in my company, with the aim of gaining practical experience in these specific tools. As a result, this project incorporates tools such as Apache Airflow, AWS, and Databricks. As these were not covered in the course materials, additional effort has been made to explain and document these technologies.
 
 ## Infrastructure as Code
 
@@ -76,7 +71,7 @@ The DAG executes Python scripts located in the app/ directory:
 
 ## Cloud-based Architecture
 
-This project uses a cloud-based architecture that separates storage and compute, improving scalability, flexibility, and reproducibility. This approache aligns with modern data engineering best practices, as it enables independent scaling of storage and processing, improves cost efficiency, and allows the pipeline to evolve as data volume and complexity increase.
+This project uses a cloud-based architecture that separates storage and compute, improving scalability, flexibility, and reproducibility. This approach aligns with modern data engineering best practices, as it enables independent scaling of storage and processing, improves cost efficiency, and allows the pipeline to evolve as data volume and complexity increase.
 
 
 ### AWS (S3 Data Lake)
@@ -120,7 +115,7 @@ Data transformations are implemented using dbt (data build tool), which converts
 
 - **Source**: Raw tables loaded into the warehouse (`src_police`)  
 - **Staging**: Clean and standardise raw data (e.g. renaming fields)  
-- **Intermediate**: Flattens nested structures ready for mart layer
+- **Intermediate**: Flattens nested structures ready for the mart layer
 - **Mart**: Final, analysis-ready tables designed for dashboard use  
 
 This structure ensures consistent data modelling, reduces duplication of logic, and supports reliable downstream analysis.
@@ -230,6 +225,16 @@ This will:
   Password: `admin`
 
 - **Streamlit App**: http://localhost:8501  
+
+### ☁️ Optional: Streamlit Cloud Deployment
+
+- Push the repository to GitHub  
+- Create a new app at https://streamlit.io/cloud pointing to `dashboard/main.py`  
+- In **App Settings → Secrets**, add the required Databricks credentials:
+
+DATABRICKS_HOST = "your-databricks-host"  
+DATABRICKS_HTTP_PATH = "your-sql-warehouse-http-path"  
+DATABRICKS_TOKEN = "your-databricks-token"
 
 ---
 
