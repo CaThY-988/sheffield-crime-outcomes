@@ -232,9 +232,11 @@ This will:
 - Create a new app at https://streamlit.io/cloud pointing to `dashboard/main.py`  
 - In **App Settings → Secrets**, add the required Databricks credentials:
 
+```
 DATABRICKS_HOST = "your-databricks-host"  
 DATABRICKS_HTTP_PATH = "your-sql-warehouse-http-path"  
 DATABRICKS_TOKEN = "your-databricks-token"
+```
 
 ---
 
