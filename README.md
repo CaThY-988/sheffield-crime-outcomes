@@ -111,8 +111,10 @@ Amazon S3 is used as the storage layer for the pipeline. It provides scalable ob
 
 In this project, data is ingested from the UK Police API and stored in S3 as JSON files using partitioned paths (e.g. `police/raw/<dataset>/date=<YYYY-MM>/...`). This creates a simple and consistent raw data layer, supporting downstream processing, incremental ingestion, and reprocessing if required.
 
-> **AWS S3 vs course tools**  
-> Amazon S3 is equivalent to Google Cloud Storage used in the course. Both provide scalable object storage for data lakes. S3 was chosen to align with the technology stack used at my company.
+```
+**AWS S3 vs course tools**  
+Amazon S3 is equivalent to Google Cloud Storage used in the course. Both provide scalable object storage for data lakes. S3 was chosen to align with the technology stack used at my company.
+```
 
 ---
 
@@ -131,7 +133,7 @@ This allows Databricks to automatically determine and adapt clustering keys base
 This optimisation strategy is appropriate for the workload because: 
 
 - **Databricks best practice**: Liquid clustering is the recommended optimisation strategy for new Delta tables, whereas partitioning is increasingly considered a legacy approach.  
-- **Dataset size**: The dataset is relatively small and ingested monthly, so partitioning by month would create many small partitions, which can negatively impact performance.  
+- **Dataset size**: The dataset is relatively small and ingested monthly, so partitioning would create many small partitions, which can negatively impact performance.  
 - **Flexibility**: Partitioning requires selecting a fixed column (e.g. `ingest_year_month`) upfront. Liquid clustering allows the storage layout to adapt automatically as query patterns evolve (e.g. filtering by category, location, or outcome).  
 - **Reduced maintenance**: With `CLUSTER BY AUTO`, Databricks manages optimisation internally, removing the need for manual partition tuning.  
 
