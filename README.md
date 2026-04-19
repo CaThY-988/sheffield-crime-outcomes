@@ -8,7 +8,7 @@ Data Zoomcamp Final Project 2026
 
 # Problem Description
 
-Crime data in Sheffield provides valuable insights into patterns, locations, and outcomes of offences. However, this data is typically released as large, raw datasets that are not easily accessible or interpretable for non-technical users.
+Crime data in Sheffield provides valuable insights into patterns, locations, and outcomes of offences. However, this data is typically released as large, raw datasets that are not easily accessible or interpretable for non-technical users. This creates challenges for stakeholders such as local residents, journalists, and policymakers who want to understand crime trends and make informed decisions.
 
 Users need a way to:
 
@@ -135,6 +135,14 @@ The dashboard includes the following views:
 
 > [!NOTE]
 > **Streamlit** is an open-source Python framework for building interactive data applications. It allows dashboards to be created quickly using Python code, making it well suited to analytics projects where the focus is on data exploration and visualisation.
+
+## Future Improvements
+
+- Add stronger pipeline robustness through improved error handling, retry logic, and automated data quality checks at each stage of the workflow.
+- Introduce monitoring and alerting within Airflow to better detect and respond to pipeline failures or anomalies.
+- Parameterise the ingestion process to support multiple geographic areas rather than being limited to Sheffield, making the pipeline more reusable.
+- Implement automated testing and CI/CD, including unit tests for ingestion/loading scripts and validation tests for dbt models.
+- Enhance the dashboard with additional interactivity, such as advanced filtering, area comparisons, and longer-term trend analysis.
 
 ---
 
