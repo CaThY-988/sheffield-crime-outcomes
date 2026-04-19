@@ -30,19 +30,19 @@ services:
     command: airflow standalone
     
   streamlit:
-    build:
-      context: .
-      dockerfile: Dockerfile   # reuse your existing UV-based image
-    container_name: sheffield-crime-streamlit
-    env_file:
-      - .env
-    ports:
-      - "8501:8501"
-    command: >
-      streamlit run streamlit/main.py
-      --server.address 0.0.0.0
-      --server.port 8501
-    volumes:
-      - ./streamlit:/app/streamlit
-      - ./app:/app/app
-      - ./dbt_police_data:/app/dbt_police_data
+  build:
+    context: .
+    dockerfile: airflow/Dockerfile
+  container_name: sheffield-crime-streamlit
+  env_file:
+    - .env
+  ports:
+    - "8501:8501"
+  command: >
+    streamlit run /opt/airflow/streamlit/main.py
+    --server.address 0.0.0.0
+    --server.port 8501
+  volumes:
+    - ./streamlit:/opt/airflow/streamlit
+    - ./app:/opt/airflow/app
+    - ./dbt_police_data:/opt/airflow/dbt_police_data

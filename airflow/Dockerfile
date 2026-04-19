@@ -20,6 +20,7 @@ RUN uv sync --locked
 
 # Copy your project code
 COPY app/ ./app/
+COPY streamlit/ ./streamlit/
 COPY dbt_police_data/ ./dbt_police_data/
 COPY airflow/dags/ ./dags/
 COPY airflow/entrypoint.sh /entrypoint.sh
