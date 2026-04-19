@@ -36,22 +36,7 @@ The project follows a modern data engineering architecture:
 - Transformations implemented with DBT to create clean, reusable datasets
 - Visualisation through a Streamlit dashboard for interactive analysis
 
-```mermaid
-graph LR;
-
-    subgraph Pipeline
-        A[Source data<br/>UK Police Crime Outcomes] --> B[Cloud storage<br/>AWS S3];
-        B --> C[Data warehouse<br/>Databricks];
-        C --> D[Transformations<br/>dbt];
-        D --> E[Dashboard<br/>Streamlit];
-    end
-
-    subgraph Supporting_Layers
-        F[Batch orchestration<br/>Airflow]
-        G[Infrastructure as code<br/>Terraform]
-        H[Containerised runtime<br/>Docker]
-    end
-```
+![Data pipeline architecture](docs/images/data-pipeline.png)
 
 The choice of tooling was influenced by the technologies used in my company, with the aim of gaining practical experience in these specific tools. As a result, this project incorporates tools such as Apache Airflow, AWS, and Databrick. As these were not covered in the course materials, additional effort has been made to explain and document these technologies.
 
