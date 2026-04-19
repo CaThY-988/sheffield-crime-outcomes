@@ -4,8 +4,6 @@ Data Zoomcamp Final Project Space (Batch)
 Contents:
 - Problem Description
 - Project overview
-- Transformations
-  - DBT
 - Dashboard
   - Streamlit
 - Reproducibility Guide 
@@ -140,8 +138,36 @@ Although the data is ingested monthly, the `ingest_year_month` column is retaine
 
 This approach ensures that the tables are structured and optimised in a way that supports efficient querying, satisfying data warehouse best practices for this scale and use case.
 
+> [!NOTE]
 > **Databricks vs course tools**  
 > Databricks serves a similar role to BigQuery used in the course. While BigQuery is a fully managed, serverless data warehouse optimised for SQL analytics, Databricks provides more flexibility for data processing (e.g. Spark and dbt integration). Databricks was chosen to align with the tooling used in my placement role and to gain practical experience with industry-relevant technologies.
+
+## Transformations (dbt)
+
+Data transformations are implemented using dbt (data build tool), which converts raw data into structured, analytics-ready datasets using an ELT approach. Transformations are defined as SQL models and executed within the data warehouse, allowing data to be cleaned, standardised, and combined in a scalable and maintainable way. The project follows a layered modelling approach to ensure clarity, reusability, and logical separation of concerns:
+
+- **Source**: Raw tables loaded into the warehouse (`src_police`)  
+- **Staging**: Clean and standardise raw data (e.g. renaming fields)  
+- **Intermediate**: Flattens nested structures ready for mart layer
+- **Mart**: Final, analysis-ready tables designed for dashboard use  
+
+This structure ensures consistent data modelling, reduces duplication of logic, and supports reliable downstream analysis.
+
+## Dashboard
+
+The final layer of the project is an interactive dashboard built in Streamlit, which provides a user-friendly interface for exploring the transformed crime and stop-and-search data. The dashboard connects directly to Databricks using the SQL connector and queries analytics-ready mart tables produced by dbt. To improve performance and usability, query results are cached and presented through interactive filters, summary metrics, maps, and charts.
+
+The dashboard includes the following views:
+
+- **Crime map views**: clustered and category-coloured maps showing the distribution of crimes across Sheffield  
+- **Crime outcome analysis**: charts showing average time to latest outcome by crime category and trends over time  
+- **Stop and search analysis**: visualisations of search reasons over time and the relationship between objects of search and recorded outcomes  
+- **Dashboard filtering and previews**: a reporting month filter, KPI summary cards, and expandable preview tables to support exploration and transparency  
+
+The dashboard is deployed in the cloud using :contentReference[oaicite:0]{index=0} Community Cloud and can be accessed here: https://sheffield-crime-outcomes-alvxbaan9jegr4nnj35ubr.streamlit.app/
+
+> [!NOTE]
+> **Streamlit** is an open-source Python framework for building interactive data applications. It allows dashboards to be created quickly using Python code, making it well suited to analytics projects where the focus is on data exploration and visualisation.
 
 ---
 
