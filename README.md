@@ -56,9 +56,10 @@ flowchart LR
     G --> H[Users]
 
     I[Docker] --> B
-    J[Terraform] -. provisions infrastructure .-> C
-    J -. provisions infrastructure .-> D
-    K[deploy.sh] -. automates Terraform deployment .-> J
+    J[Terraform] -.-> C
+    J[Terraform] -.-> D
+    K[deploy.sh] -.-> J
+```
 
 The choice of tooling was influenced by the technologies used in my company, with the aim of gaining practical experience in these specific tools. As a result, this project incorporates tools such as Apache Airflow, AWS, and Databrick. As these were not covered in the course materials, additional effort has been made to explain and document these technologies.
 
