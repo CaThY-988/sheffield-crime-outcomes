@@ -111,11 +111,9 @@ Amazon S3 is used as the storage layer for the pipeline. It provides scalable ob
 
 In this project, data is ingested from the UK Police API and stored in S3 as JSON files using partitioned paths (e.g. `police/raw/<dataset>/date=<YYYY-MM>/...`). This creates a simple and consistent raw data layer, supporting downstream processing, incremental ingestion, and reprocessing if required.
 
-```
+---
 **AWS S3 vs course tools**  
 Amazon S3 is equivalent to Google Cloud Storage used in the course. Both provide scalable object storage for data lakes. S3 was chosen to align with the technology stack used at my company.
-```
-
 ---
 
 ### Databricks (Data Warehouse & Lakehouse)
