@@ -26,6 +26,10 @@ datasets = [
     {
         "name": "outcome_data",
         "endpoint": "outcomes-at-location"
+    },
+    {
+        "name": "stop_and_search_data",
+        "endpoint": "stops-street"
     }
 ]
 

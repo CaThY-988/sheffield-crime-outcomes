@@ -1,0 +1,96 @@
+version: 2
+
+models:
+  - name: stg_police_stop_and_search
+    description: >
+      Staging model for police stop and search records. Retains the nested API
+      structure for location and outcome object, with light renaming and typing applied.
+    columns:
+      - name: age_range
+        data_type: string
+        description: >
+          Age range of the person stopped at the time the stop and search occurred.
+
+      - name: officer_defined_ethnicity
+        data_type: string
+        description: >
+          Officer-defined ethnicity of the person stopped.
+
+      - name: involved_person
+        data_type: boolean
+        description: >
+          Whether a person was searched in this incident. Derived from the stop
+          and search type by the source API.
+
+      - name: self_defined_ethnicity
+        data_type: string
+        description: >
+          Self-defined ethnicity of the person stopped.
+
+      - name: gender
+        data_type: string
+        description: >
+          Reported gender of the person stopped, where available.
+
+      - name: legislation
+        data_type: string
+        description: >
+          The legislative power used to carry out the stop and search.
+
+      - name: outcome_linked_to_object_of_search
+        data_type: boolean
+        description: >
+          Whether the outcome was related to the reason for the stop and search.
+          May be null where not provided.
+
+      - name: stop_search_datetime
+        data_type: timestamp
+        description: >
+          Timestamp when the stop and search took place.
+
+      - name: outcome_object
+        data_type: struct<id:string,name:string>
+        description: >
+          Nested structured outcome object containing the API outcome identifier
+          and human-readable outcome name.
+
+      - name: location
+        data_type: struct<latitude:string,street:struct<id:bigint,name:string>,longitude:string>
+        description: >
+          Nested approximate location object containing latitude, longitude,
+          and approximate street information.
+
+      - name: object_of_search
+        data_type: string
+        description: >
+          The reason the stop and search was carried out.
+
+      - name: operation
+        data_type: boolean
+        description: >
+          Whether the stop and search was part of a policing operation.
+          May be null where not provided.
+
+      - name: outcome
+        data_type: string
+        description: >
+          Human-readable outcome of the stop and search. The API may return false
+          or an empty value when nothing was found or no outcome was provided.
+
+      - name: stop_search_type
+        data_type: string
+        description: >
+          Type of stop and search, such as Person search, Vehicle search,
+          or Person and Vehicle search.
+
+      - name: operation_name
+        data_type: string
+        description: >
+          Name of the policing operation the stop and search was part of,
+          where available.
+
+      - name: removal_of_more_than_outer_clothing
+        data_type: boolean
+        description: >
+          Whether more than outer clothing was removed during the search.
+          May be null where not provided.

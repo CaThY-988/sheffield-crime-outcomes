@@ -1,0 +1,109 @@
+version: 2
+
+models:
+  - name: int_police_stop_and_search
+    description: >
+      Intermediate model for police stop and search records with nested API
+      fields flattened into atomic columns for easier downstream modelling and analysis.
+    columns:
+      - name: age_range
+        data_type: string
+        description: >
+          Age range of the person stopped at the time the stop and search occurred.
+
+      - name: officer_defined_ethnicity
+        data_type: string
+        description: >
+          Officer-defined ethnicity of the person stopped.
+
+      - name: involved_person
+        data_type: boolean
+        description: >
+          Whether a person was searched in this incident.
+
+      - name: self_defined_ethnicity
+        data_type: string
+        description: >
+          Self-defined ethnicity of the person stopped.
+
+      - name: gender
+        data_type: string
+        description: >
+          Reported gender of the person stopped, where available.
+
+      - name: legislation
+        data_type: string
+        description: >
+          Legislative power used to carry out the stop and search.
+
+      - name: outcome_linked_to_object_of_search
+        data_type: boolean
+        description: >
+          Whether the outcome was linked to the object of the search.
+
+      - name: stop_search_datetime
+        data_type: timestamp
+        description: >
+          Timestamp when the stop and search took place.
+
+      - name: object_of_search
+        data_type: string
+        description: >
+          The reason the stop and search was carried out.
+
+      - name: operation
+        data_type: boolean
+        description: >
+          Whether the stop and search was part of a policing operation.
+
+      - name: outcome
+        data_type: string
+        description: >
+          Human-readable outcome of the stop and search.
+
+      - name: stop_search_type
+        data_type: string
+        description: >
+          Type of stop and search, such as Person search, Vehicle search,
+          or Person and Vehicle search.
+
+      - name: operation_name
+        data_type: string
+        description: >
+          Name of the policing operation the stop and search was part of,
+          where available.
+
+      - name: removal_of_more_than_outer_clothing
+        data_type: boolean
+        description: >
+          Whether more than outer clothing was removed during the search.
+
+      - name: stop_search_latitude
+        data_type: string
+        description: >
+          Approximate latitude of the stop and search location.
+
+      - name: stop_search_longitude
+        data_type: string
+        description: >
+          Approximate longitude of the stop and search location.
+
+      - name: stop_search_street_id
+        data_type: bigint
+        description: >
+          API identifier for the approximate street location.
+
+      - name: stop_search_street_name
+        data_type: string
+        description: >
+          Human-readable name of the approximate street location.
+
+      - name: outcome_object_id
+        data_type: string
+        description: >
+          API identifier for the structured outcome object where present.
+
+      - name: outcome_object_name
+        data_type: string
+        description: >
+          Human-readable name of the structured outcome object where present.

@@ -1,0 +1,33 @@
+version: 2
+
+models:
+  - name: mart_stop_search_outcome_mix
+    description: >
+      Mart model aggregating police stop and search records by object of search
+      and outcome. Supports analysis of how stop and search outcomes vary by the
+      stated reason for the search.
+
+    columns:
+      - name: object_of_search
+        data_type: string
+        description: >
+          Reason the stop and search was carried out, such as controlled drugs,
+          offensive weapons, or stolen goods. Defaults to Unknown where missing.
+
+      - name: outcome
+        data_type: string
+        description: >
+          Human-readable outcome of the stop and search. Defaults to Unknown where
+          missing.
+
+      - name: stop_search_count
+        data_type: bigint
+        description: >
+          Total number of stop and search records for the given object of search
+          and outcome combination.
+
+      - name: pct_within_object_of_search
+        data_type: double
+        description: >
+          Proportion of stop and search records for a given object of search that
+          resulted in this outcome.

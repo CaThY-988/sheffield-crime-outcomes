@@ -6,7 +6,10 @@ sources:
     schema: src_police
     tables:
       - name: crime_data
-        description: Raw nested JSON table for police crimes for January 2025.
+        description: Raw nested JSON table for police crimes since January 2025.
 
       - name: outcome_data
-        description: Raw nested JSON table for police outcomes for January 2025.
+        description: Raw nested JSON table for police outcomes since January 2025.
+
+      - name: stop_and_search_data
+        description: Raw nested JSON table for police stop and search records since January 2025.

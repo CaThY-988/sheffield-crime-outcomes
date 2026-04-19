@@ -1,0 +1,33 @@
+version: 2
+
+models:
+  - name: mart_stop_search_reason_trends
+    description: >
+      Mart model aggregating police stop and search records by month and object
+      of search. Supports trend analysis of what police searches were carried out for
+      over time.
+
+    columns:
+      - name: stop_search_month
+        data_type: string
+        description: >
+          Month of the stop and search event in YYYY-MM format, derived from the
+          stop and search timestamp.
+
+      - name: object_of_search
+        data_type: string
+        description: >
+          Reason the stop and search was carried out, such as controlled drugs,
+          offensive weapons, or stolen goods. Defaults to Unknown where missing.
+
+      - name: stop_search_count
+        data_type: bigint
+        description: >
+          Total number of stop and search records for the given month and object
+          of search combination.
+
+      - name: pct_of_month_total
+        data_type: double
+        description: >
+          Proportion of all stop and search records in that month represented by
+          this object of search.

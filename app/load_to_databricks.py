@@ -54,6 +54,34 @@ datasets = [
             "crime": "to_json(crime)",
         },
     },
+    {
+        "name": "stop_and_search_data",
+        "schema": {
+            "age_range": "STRING",
+            "officer_defined_ethnicity": "STRING",
+            "involved_person": "BOOLEAN",
+            "self_defined_ethnicity": "STRING",
+            "gender": "STRING",
+            "legislation": "STRING",
+            "outcome_linked_to_object_of_search": "BOOLEAN",
+            "datetime": "STRING",
+            "outcome_object": "STRING",
+            "location": "STRING",
+            "object_of_search": "STRING",
+            "operation": "BOOLEAN",
+            "outcome": "STRING",
+            "type": "STRING",
+            "operation_name": "STRING",
+            "removal_of_more_than_outer_clothing": "BOOLEAN",
+            "ingest_year_month": "STRING",
+            "loaded_at": "TIMESTAMP",
+        },
+        "transforms": {
+            "location": "to_json(location)",
+            "outcome_object": "to_json(outcome_object)",
+            "outcome": "CAST(outcome AS STRING)",
+        },
+    },
 ]
 
 
