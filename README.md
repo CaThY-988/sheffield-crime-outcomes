@@ -46,8 +46,19 @@ The project follows a modern data engineering architecture:
 - Visualisation through a Streamlit dashboard for interactive analysis
 
 ```mermaid
-info
-````
+graph LR;
+    A[UK Police Crime Outcomes Data] --> B[Airflow Pipeline];
+    B --> C[AWS S3 Raw Data];
+    C --> D[Databricks Processing];
+    D --> E[dbt Transformations];
+    E --> F[Analytics-Ready Tables];
+    F --> G[Streamlit Dashboard];
+    G --> H[Users];
+    I[Docker] --> B;
+    J[Terraform] -.-> C;
+    J -.-> D;
+    K[deploy.sh] -.-> J;
+```
 
 The choice of tooling was influenced by the technologies used in my company, with the aim of gaining practical experience in these specific tools. As a result, this project incorporates tools such as Apache Airflow, AWS, and Databrick. As these were not covered in the course materials, additional effort has been made to explain and document these technologies.
 
