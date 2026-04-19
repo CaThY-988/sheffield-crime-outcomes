@@ -35,17 +35,18 @@ The project follows a modern data engineering architecture:
 
 ```mermaid
 graph LR;
-    A[Source data<br/>UK Police Crime Outcomes] --> B[Cloud storage<br/>AWS S3 Bucket];
-    B --> C[Data warehouse<br/>Databricks];
-    C --> D[Transformations<br/>dbt];
-    D --> E[Dashboard<br/>Streamlit];
 
-    F[Batch orchestration<br/>Airflow] -.-> B;
-    F -.-> C;
-    F -.-> D;
+    subgraph Pipeline
+        A[Source data<br/>UK Police Crime Outcomes] --> B[Cloud storage<br/>AWS S3];
+        B --> C[Data warehouse<br/>Databricks];
+        C --> D[Transformations<br/>dbt];
+        D --> E[Dashboard<br/>Streamlit];
+    end
 
-    G[Infrastructure as code<br/>Terraform] -.-> B;
-    G -.-> C;
+    subgraph Supporting_Layers
+        F[Batch orchestration<br/>Airflow]
+        G[Infrastructure as code<br/>Terraform]
+    end
 ```
 
 The choice of tooling was influenced by the technologies used in my company, with the aim of gaining practical experience in these specific tools. As a result, this project incorporates tools such as Apache Airflow, AWS, and Databrick. As these were not covered in the course materials, additional effort has been made to explain and document these technologies.
