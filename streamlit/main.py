@@ -19,13 +19,30 @@ CHART_HEIGHT = 420
 QUALITATIVE_PALETTE = px.colors.qualitative.Set2
 SEQUENTIAL_PALETTE = px.colors.sequential.Blues
 
+def get_secret(key: str):
+    """Get secrets from Streamlit Cloud first, then fall back to local env vars."""
+    try:
+        return st.secrets[key]
+    except Exception:
+        return os.getenv(key)
 
 @st.cache_resource
 def get_connection():
+    host = get_secret("DATABRICKS_HOST")
+    http_path = get_secret("DATABRICKS_HTTP_PATH")
+    token = get_secret("DATABRICKS_TOKEN")
+
+    if not host:
+        raise ValueError("Missing DATABRICKS_HOST")
+    if not http_path:
+        raise ValueError("Missing DATABRICKS_HTTP_PATH")
+    if not token:
+        raise ValueError("Missing DATABRICKS_TOKEN")
+
     return sql.connect(
-        server_hostname=os.getenv("DATABRICKS_HOST"),
-        http_path=os.getenv("DATABRICKS_HTTP_PATH"),
-        access_token=os.getenv("DATABRICKS_TOKEN"),
+        server_hostname=host,
+        http_path=http_path,
+        access_token=token,
     )
 
 
@@ -471,10 +488,15 @@ def main():
     st.title("Sheffield Crime Dashboard")
     st.caption("Data Zoomcamp project 2026")
 
-    map_data = load_map_data()
-    timing_df = load_timing_data()
-    stop_search_trends_df = load_stop_search_reason_trends()
-    stop_search_outcome_df = load_stop_search_outcome_mix()
+    try:
+        map_data = load_map_data()
+        timing_df = load_timing_data()
+        stop_search_trends_df = load_stop_search_reason_trends()
+        stop_search_outcome_df = load_stop_search_outcome_mix()
+    except Exception as e:
+        st.error("Failed to load dashboard data.")
+        st.exception(e)
+        st.stop()
 
     if map_data.empty:
         st.error("No data returned from mart_crime_map.")
