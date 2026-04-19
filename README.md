@@ -60,6 +60,21 @@ graph LR;
     K[deploy.sh] -.-> J;
 ```
 
+```mermaid
+graph LR;
+    A[UK Police Crime Outcomes Data] -->|ingested by| B[Airflow Pipeline];
+    B -->|stores raw data in| C[AWS S3 Raw Data];
+    C -->|processed in| D[Databricks];
+    D -->|modelled with| E[dbt Transformations];
+    E -->|serves| F[Analytics-Ready Tables];
+    F -->|visualised in| G[Streamlit Dashboard];
+    G --> H[Users];
+    I[Docker] -->|containerises| B;
+    J[Terraform] -.->|provisions| C;
+    J -.->|provisions| D;
+    K[deploy.sh] -.->|automates| J;
+```
+
 The choice of tooling was influenced by the technologies used in my company, with the aim of gaining practical experience in these specific tools. As a result, this project incorporates tools such as Apache Airflow, AWS, and Databrick. As these were not covered in the course materials, additional effort has been made to explain and document these technologies.
 
 ## Infrastructure as code
