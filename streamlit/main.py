@@ -26,7 +26,7 @@ def get_secret(key: str):
     except Exception:
         return os.getenv(key)
 
-@st.cache_resource
+@st.cache_resource(ttl=1800)
 def get_connection():
     host = get_secret("DATABRICKS_HOST")
     http_path = get_secret("DATABRICKS_HTTP_PATH")
@@ -46,7 +46,7 @@ def get_connection():
     )
 
 
-@st.cache_data(ttl=600)
+@st.cache_data(ttl=1800)
 def run_query(query: str) -> pd.DataFrame:
     conn = get_connection()
     with conn.cursor() as cursor:
@@ -73,7 +73,7 @@ def apply_standard_layout(fig, *, height=CHART_HEIGHT, xaxis_title="", yaxis_tit
     return fig
 
 
-@st.cache_data(ttl=600)
+@st.cache_data(ttl=1800)
 def load_map_data() -> pd.DataFrame:
     query = """
     select
@@ -100,7 +100,7 @@ def load_map_data() -> pd.DataFrame:
     return df
 
 
-@st.cache_data(ttl=600)
+@st.cache_data(ttl=1800)
 def load_timing_data() -> pd.DataFrame:
     query = """
     select
@@ -133,7 +133,7 @@ def load_timing_data() -> pd.DataFrame:
     return df
 
 
-@st.cache_data(ttl=600)
+@st.cache_data(ttl=1800)
 def load_stop_search_reason_trends() -> pd.DataFrame:
     query = """
     select
@@ -154,7 +154,7 @@ def load_stop_search_reason_trends() -> pd.DataFrame:
     return df
 
 
-@st.cache_data(ttl=600)
+@st.cache_data(ttl=1800)
 def load_stop_search_outcome_mix() -> pd.DataFrame:
     query = """
     select
