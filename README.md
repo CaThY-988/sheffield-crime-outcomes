@@ -136,6 +136,10 @@ The dashboard includes the following views:
 > [!NOTE]
 > **Streamlit** is an open-source Python framework for building interactive data applications. It allows dashboards to be created quickly using Python code, making it well suited to analytics projects where the focus is on data exploration and visualisation.
 
+![img](docs/images/screenshot1.png)
+![img](docs/images/screenshot2.png)
+![img](docs/images/screenshot3.png)
+
 ## Future Improvements
 
 - Add stronger pipeline robustness through improved error handling, retry logic, and automated data quality checks at each stage of the workflow.
